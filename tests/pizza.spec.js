@@ -339,4 +339,25 @@ test('login diner', async ({ page }) => {
   await expect(page.getByText('diner', { exact: true })).toBeVisible();
 });
 
+test('about page', async ({ page }) => {
+  await basicInit(page);
+  await page.goto('/about');
+  await expect(page.getByRole('main')).toBeVisible();
+});
 
+test('history page', async ({ page }) => {
+  await basicInit(page);
+  await page.goto('/history');
+  await expect(page.getByRole('main')).toBeVisible();
+});
+
+test('not found page', async ({ page }) => {
+  await basicInit(page);
+  await page.goto('/some-brokie-route');
+  await expect(page.getByRole('main')).toBeVisible();
+});
+test('delivery page', async ({ page }) => {
+  await basicInit(page);
+  await page.goto('/delivery');
+  await expect(page.getByRole('main')).toBeVisible();
+});
