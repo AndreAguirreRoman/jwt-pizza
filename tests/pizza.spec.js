@@ -11,6 +11,13 @@ async function basicInit(page) {
       password: 'a',
       roles: [{ role: 'diner' }]
     },
+    'a@jwt.com': {
+      id: '3',
+      name: 'Admin Chadmin',
+      email: 'a@jwt.com',
+      password: 'a',
+      roles: [{ role: 'admin' }]
+    },
   };
 
   await page.route('*/**/api/auth', async (route) => {
@@ -162,3 +169,35 @@ test('purchase with login', async ({ page }) => {
   // Check balance
   await expect(page.getByText('0.008')).toBeVisible();
 });
+
+
+test('franchise board shows mocked franchises and ssss', async ({ page }) => {
+  await basicInit(page);
+  await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
+  await page.getByRole('link', { name: 'login', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
+  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Password' }).click();
+  await page.getByRole('textbox', { name: 'Password' }).fill('a');
+  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(page.locator('#navbar-dark')).toContainText('Admin');
+});
+
+
+test('Test login and logout', async ({ page }) => {
+  await basicInit(page);
+  await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
+  await page.getByRole('link', { name: 'login', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
+  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Password' }).click();
+  await page.getByRole('textbox', { name: 'Password' }).fill('a');
+  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(page.locator('#navbar-dark')).toContainText('Logout');
+  await page.getByRole('link', { name: 'Logout' }).click();
+  await expect(page.locator('#navbar-dark')).toContainText('Login');
+});
+
+
