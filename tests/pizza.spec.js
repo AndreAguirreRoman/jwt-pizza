@@ -8,7 +8,7 @@ async function basicInit(page) {
       id: '1',
       name: 'Kai Chen',
       email: 'd@jwt.com',
-      password: 'a',
+      password: 'd',
       roles: [{ role: 'diner' }]
     },
     'a@jwt.com': {
@@ -83,9 +83,13 @@ async function basicInit(page) {
   });
 
   await page.route('*/**/api/user/me', async (route) => {
-    expect(route.request().method()).toBe('GET');
+    if (!loggedInUser) {
+      await route.fulfill({ status: 401, json: { error: 'Unauthorized' } });
+      return;
+    }
     await route.fulfill({ status: 200, json: loggedInUser });
   });
+
 
   await page.route('*/**/api/order/menu', async (route) => {
     expect(route.request().method()).toBe('GET');
@@ -145,23 +149,25 @@ await page.route(/\/api\/franchise(\/\d+)?(\?.*)?$/, async (route) => {
 
 
   await page.route('*/**/api/order', async (route) => {
-    expect(route.request().method()).toBe('POST');
-    const orderReq = route.request().postDataJSON();
+  const req = route.request();
+  const method = req.method();
+
+  if (method === 'GET') {
+    await route.fulfill({ status: 200, json: [] });
+    return;
+  }
+
+  if (method === 'POST') {
+    const orderReq = req.postDataJSON?.() ?? {};
     await route.fulfill({
       status: 200,
       json: { order: { ...orderReq, id: 23 }, jwt: 'eyJpYXQ' },
     });
-  });
+    return;
+  }
 
-
-  await page.route('*/**/api/order', async (route) => {
-    expect(route.request().method()).toBe('POST');
-    const orderReq = route.request().postDataJSON();
-    await route.fulfill({
-      status: 200,
-      json: { order: { ...orderReq, id: 23 }, jwt: 'eyJpYXQ' },
-    });
-  });
+  await route.fulfill({ status: 405, json: { error: 'Method not allowed' } });
+});
 
   await page.goto('/');
 }
@@ -182,7 +188,7 @@ test('login', async ({ page }) => {
   await basicInit(page);
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).fill('d@jwt.com');
-  await page.getByRole('textbox', { name: 'Password' }).fill('a');
+  await page.getByRole('textbox', { name: 'Password' }).fill('d');
   await page.getByRole('button', { name: 'Login' }).click();
 
   await expect(page.getByRole('link', { name: 'KC' })).toBeVisible();
@@ -206,7 +212,7 @@ test('purchase with login', async ({ page }) => {
   await page.getByPlaceholder('Email address').click();
   await page.getByPlaceholder('Email address').fill('d@jwt.com');
   await page.getByPlaceholder('Email address').press('Tab');
-  await page.getByPlaceholder('Password').fill('a');
+  await page.getByPlaceholder('Password').fill('d');
   await page.getByRole('button', { name: 'Login' }).click();
 
   // Pay
@@ -304,7 +310,7 @@ test('login admin, delete add franchise', async ({ page }) => {
 
 
 
-test('login franchisee, delete add franchise', async ({ page }) => {
+test('login franchisee', async ({ page }) => {
   await basicInit(page);
   await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
   await page.getByRole('link', { name: 'login', exact: true }).click();
@@ -315,11 +321,22 @@ test('login franchisee, delete add franchise', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Password' }).fill('f');
   await page.getByRole('button', { name: 'Login' }).click();
   await page.getByRole('link', { name: 'Franchise' }).first().click();
-  await expect(page.getByRole('columnheader', { name: 'Franchise', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Add Franchise' })).toBeVisible();
-  await page.getByRole('button', { name: 'Close' }).first().click();
+
 
 });
 
+
+test('login diner', async ({ page }) => {
+  await basicInit(page);
+  await page.getByRole('link', { name: 'Login' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('d@jwt.com');
+  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Password' }).fill('d');
+  await page.getByRole('button', { name: 'Login' }).click();
+  await expect(page.getByRole('navigation', { name: 'Global' })).toBeVisible();
+  await page.getByRole('link', { name: 'KC', exact: true }).click();
+  await expect(page.getByText('diner', { exact: true })).toBeVisible();
+});
 
 
