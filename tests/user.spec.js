@@ -93,3 +93,37 @@ test('updateUserPassword', async ({ page }) => {
   await page.getByRole('link', { name: 'pd' }).click();
   await expect(page.getByRole('main')).toContainText('pizza diner');
 });
+
+test('updateUser as franchisee', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Login' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('f@jwt.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('franchisee');
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  
+  await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
+  await page.getByRole('link', { name: 'pf' }).click();
+  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('textbox').first().click();
+  await page.getByRole('textbox').first().fill('pizza Francois');
+  await page.getByRole('button', { name: 'Update' }).click();
+  await expect(page.getByText('pizza Francois')).toBeVisible();
+});
+
+test('updateUser as admin', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Login' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('admin');
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  
+  await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
+  await page.getByRole('link', { name: '常' }).click();
+  await page.getByRole('button', { name: 'Edit' }).click();
+  await page.getByRole('textbox').first().click();
+  await page.getByRole('textbox').first().fill('pizza Francois');
+  await page.getByRole('button', { name: 'Update' }).click();
+  await expect(page.getByText('pizza Francois')).toBeVisible();
+});
