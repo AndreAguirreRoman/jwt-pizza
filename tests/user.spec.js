@@ -120,7 +120,7 @@ test('updateUser as admin', async ({ page }) => {
 
   
   await page.getByLabel('Global').getByRole('link', { name: 'Franchise' }).click();
-  await page.getByRole('link', { name: '常' }).click();
+  await page.getByRole('link', { name: 'JD' }).click();
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('textbox').first().click();
   await page.getByRole('textbox').first().fill('pizza Francois');
