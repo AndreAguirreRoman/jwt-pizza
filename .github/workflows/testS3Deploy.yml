@@ -12,6 +12,17 @@ jobs:
   deploy-s3:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug secrets
+        run: |
+          echo "AWS_ACCOUNT length: ${#AWS_ACCOUNT}"
+          echo "CI_IAM_ROLE length: ${#CI_IAM_ROLE}"
+          echo "APP_BUCKET length: ${#APP_BUCKET}"
+          echo "DISTRIBUTION_ID length: ${#DISTRIBUTION_ID}"
+        env:
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+          CI_IAM_ROLE: ${{ secrets.CI_IAM_ROLE }}
+          APP_BUCKET: ${{ secrets.APP_BUCKET }}
+          DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION_ID }}
       - name: Create OIDC token to AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,5 +33,5 @@ jobs:
         run: |
           mkdir dist
           printf "<h1>CloudFront deployment with GitHub Actions</h1>" > dist/index.html
-          aws s3 cp dist s3://${{ secrets.APP_BUCKET }} --recursive
+          aws s3 cp dist s3://${{ secrets.APP_ACCOUNT }} --recursive
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
