@@ -29,15 +29,20 @@ export default function AdminDashboard(props: Props) {
 
   React.useEffect(() => {
     (async () => {
-      if (Role.isRole(props.user, Role.Admin)) {
-        setUserList(await pizzaService.listUsers(userPage, 10, '*'));
+      try {
+        const res = await pizzaService.listUsers(userPage + 1, 10, '*');
+        console.log('listUsers OK:', res);
+        setUserList(res);
+      } catch (e) {
+        console.error('listUsers FAIL:', e);
+        setUserList({ users: [], more: false });
       }
     })();
   }, [props.user, userPage]);
 
   async function filterUsers() {
     setUserPage(0);
-    setUserList(await pizzaService.listUsers(0, 10, `*${filterUserRef.current?.value}*`));
+    setUserList(await pizzaService.listUsers(1, 10, `*${filterUserRef.current?.value}*`));
   }
 
   function createFranchise() {
@@ -140,9 +145,68 @@ export default function AdminDashboard(props: Props) {
         <div>
           <Button className="w-36 text-xs sm:text-sm sm:w-64" title="Add Franchise" onPress={createFranchise} />
         </div>
+
+        <h3 className="text-neutral-100 text-xl mt-8">Users</h3>
+          <div className="bg-neutral-100 overflow-clip my-4">
+            <div className="flex flex-col">
+              <div className="-m-1.5 overflow-x-auto">
+                <div className="p-1.5 min-w-full inline-block align-middle">
+                  <div className="overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="uppercase text-neutral-100 bg-slate-400 border-b-2 border-gray-500">
+                        <tr>
+                          {['Name', 'Email', 'Role'].map((header) => (
+                            <th key={header} scope="col" className="px-6 py-3 text-center text-xs font-medium">
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+
+                      <tbody className="divide-y divide-gray-200">
+                        {(userList.users ?? []).map((u, index) => (
+                          <tr key={u.id ?? index} className="bg-neutral-100">
+                            <td className="text-start px-2 py-2 whitespace-nowrap text-sm text-gray-800">{u.name}</td>
+                            <td className="text-start px-2 py-2 whitespace-nowrap text-sm text-gray-800">{u.email}</td>
+                            <td className="text-start px-2 py-2 whitespace-nowrap text-sm text-gray-800">
+                              {u.roles?.some(r => r.role === 'admin')
+                                ? 'admin'
+                                : u.roles?.some(r => r.role === 'franchisee')
+                                ? 'franchisee'
+                                : 'diner'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+
+                      <tfoot>
+                        <tr>
+                          <td colSpan={3} className="text-end text-sm font-medium px-2 py-2">
+                            <button
+                              className="w-12 p-1 text-sm font-semibold rounded-lg border border-transparent bg-white text-grey border-grey m-1 hover:bg-orange-200 disabled:bg-neutral-300"
+                              onClick={() => setUserPage(userPage - 1)}
+                              disabled={userPage <= 0}
+                            >
+                              «
+                            </button>
+                            <button
+                              className="w-12 p-1 text-sm font-semibold rounded-lg border border-transparent bg-white text-grey border-grey m-1 hover:bg-orange-200 disabled:bg-neutral-300"
+                              onClick={() => setUserPage(userPage + 1)}
+                              disabled={!userList.more}
+                            >
+                              »
+                            </button>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
       </View>
     );
   }
-
   return response;
 }
