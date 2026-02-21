@@ -140,8 +140,8 @@ test('users list', async ({ page }) => {
   await page.getByRole('cell', { name: 'pizza Francois' }).first().click();
   await page.getByRole('button', { name: '»' }).nth(1).click();
   await expect(page.getByRole('cell', { name: 'pizza diner' }).first()).toBeVisible();
-  const firstRowAfter = await page.locator('table tbody tr').first().innerText();
   await expect(page.getByRole('main')).toContainText('pizza diner');
 });
+
 
 
