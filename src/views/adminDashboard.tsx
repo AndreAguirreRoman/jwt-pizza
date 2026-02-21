@@ -20,6 +20,8 @@ export default function AdminDashboard(props: Props) {
   const [userList, setUserList] = React.useState<UserList>({ users: [], more: false });
   const [userPage, setUserPage] = React.useState(0);
   const filterUserRef = React.useRef<HTMLInputElement>(null);
+  const userLimit = 10;
+  const [userNameFilter, setUserNameFilter] = React.useState('*');
 
   React.useEffect(() => {
     (async () => {
@@ -41,8 +43,17 @@ export default function AdminDashboard(props: Props) {
   }, [props.user, userPage]);
 
   async function filterUsers() {
+    const f = `*${filterUserRef.current?.value ?? ''}*`;
+    setUserNameFilter(f);
     setUserPage(0);
-    setUserList(await pizzaService.listUsers(1, 10, `*${filterUserRef.current?.value}*`));
+    setUserList(await pizzaService.listUsers(1, userLimit, f));
+  }
+
+  async function deleteUser(userId?: string) {
+    if (!userId) return;
+    await pizzaService.deleteUser(userId);
+    const refreshed = await pizzaService.listUsers(userPage + 1, userLimit, userNameFilter);
+    setUserList(refreshed);
   }
 
   function createFranchise() {
@@ -174,6 +185,16 @@ export default function AdminDashboard(props: Props) {
                                 : u.roles?.some(r => r.role === 'franchisee')
                                 ? 'franchisee'
                                 : 'diner'}
+                            </td>
+                            <td className="text-end px-2 py-2 whitespace-nowrap text-sm font-medium">
+                              <button
+                                type="button"
+                                className="px-2 py-1 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-1 border-orange-400 text-orange-400 hover:border-orange-800 hover:text-orange-800"
+                                onClick={() => deleteUser(u.id)}
+                              >
+                                <TrashIcon />
+                                Delete
+                              </button>
                             </td>
                           </tr>
                         ))}

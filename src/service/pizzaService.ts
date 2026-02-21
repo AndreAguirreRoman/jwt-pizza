@@ -91,7 +91,7 @@ type Endpoint = {
 };
 
 type Endpoints = {
-  endpoints: Endpoint[];
+  endpoints: Endpoint[];              
 };
 
 type JWTPayload = {
