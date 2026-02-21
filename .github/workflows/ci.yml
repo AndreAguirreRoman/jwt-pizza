@@ -47,10 +47,13 @@ jobs:
   deploy:
     needs: build
     permissions:
+      pages: write
       id-token: write
-    runs-on: ubuntu-latest
-    env:
-      version: ${{ needs.build.outputs.version }}
     environment:
-      name: production
-      url: https://pizza.pizzacs329andre.click
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
