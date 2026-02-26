@@ -68,5 +68,20 @@ jobs:
       - name: Push to AWS S3
         run: |
           echo Deploying $version
+          echo "=== Identity ==="
+          aws sts get-caller-identity
+          aws sts get-caller-identity --query Arn --output text
+          
+          echo "=== Region/Config ==="
+          aws configure list
+          aws configure get region || true
+          
+          echo "=== Bucket sanity ==="
+          echo "BUCKET=$APP_BUCKET"
+          aws s3api head-bucket --bucket "$APP_BUCKET"
+          
+          echo "=== Try a tiny put-object (no multipart) ==="
+          echo "hello" > /tmp/debug.txt
+          aws s3api put-object --bucket "$APP_BUCKET" --key "debug/debug.txt" --body /tmp/debug.txt
           aws s3 cp dist s3://${{ secrets.APP_BUCKET }} --recursive
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
