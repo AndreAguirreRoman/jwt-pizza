@@ -13,14 +13,14 @@ export default function Home() {
   }
 
   return (
-    <View title="The web's best pizza">
+    <View title="The web's best pizza with GitHub">
       <div className="w-screen h-64 bg-center bg-cover bg-no-repeat" style={{ backgroundImage: 'url(/pizza-hero.jpg)' }}></div>
       <div className="flow flow-col justify-center">
         <Button title="Order now" onPress={orderNow} />
 
         <Carousel
           slides={[
-            <Quote quote="Most amazing pizza experience of my life." author="Megan Fox, Springville" />,
+            <Quote quote="Most amazing pizza experience of my life with Github." author="Megan Fox, Springville" />,
             <Quote quote="Milan reborn!" author="张伟, Provo" />,
             <Quote quote="All I can say is WOW!" author="José García, Orem" />,
             <Quote quote="Best pizza ever. I can eat this every day!" author="Terrence Jones, Mapleton" />,
