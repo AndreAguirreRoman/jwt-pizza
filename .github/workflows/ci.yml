@@ -26,6 +26,10 @@ jobs:
           version=$(date +'%Y%m%d.%H%M%S')
           echo "version=$version" >> "$GITHUB_OUTPUT"
           printf '{"version": "%s" }' "$version" > public/version.json
+      - name: Verify Dockerfile exists
+        run: |
+          pwd
+          ls -la
       - name: Create dist
         run: |
           mkdir dist
