@@ -52,6 +52,7 @@ jobs:
     env:
       version: ${{needs.build.outputs.version}}
     steps:
+    
       - name: Create OIDC token to AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -67,6 +68,11 @@ jobs:
   
       - name: Push to AWS S3
         run: |
+          if [ -z "$APP_BUCKET" ]; then
+            echo "APP_BUCKET is EMPTY"
+          else
+            echo "APP_BUCKET is SET"
+          fi
           echo Deploying $version
           echo "=== Identity ==="
           aws sts get-caller-identity
