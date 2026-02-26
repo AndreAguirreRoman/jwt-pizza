@@ -67,6 +67,8 @@ jobs:
           path: dist/
   
       - name: Push to AWS S3
+        env:
+          APP_BUCKET: ${{ secrets.APP_BUCKET }}
         run: |
           if [ -z "$APP_BUCKET" ]; then
             echo "APP_BUCKET is EMPTY"
