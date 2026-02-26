@@ -75,6 +75,8 @@ jobs:
           else
             echo "APP_BUCKET is SET"
           fi
+          printf 'APP_BUCKET=[%q]\n' "$APP_BUCKET"
+          echo "LEN=${#APP_BUCKET}"
           echo Deploying $version
           echo "=== Identity ==="
           aws sts get-caller-identity
