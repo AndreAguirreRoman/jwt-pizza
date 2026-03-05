@@ -361,3 +361,13 @@ test('delivery page', async ({ page }) => {
   await page.goto('/delivery');
   await expect(page.getByRole('main')).toBeVisible();
 });
+
+
+test('delivery page test', async ({ page }) => {
+  await basicInit(page);
+  await page.goto('/delivery');
+  await expect(page.getByRole('main')).toBeVisible();
+  await page.getByRole('button', { name: 'Verify' }).click();
+  await page.getByRole('button', { name: 'Close' }).click();
+
+});
