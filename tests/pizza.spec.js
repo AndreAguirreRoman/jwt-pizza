@@ -369,5 +369,4 @@ test('delivery page test', async ({ page }) => {
   await expect(page.getByRole('main')).toBeVisible();
   await page.getByRole('button', { name: 'Verify' }).click();
   await page.getByRole('button', { name: 'Close' }).click();
-
 });
