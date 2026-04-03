@@ -11,11 +11,14 @@ There are some limitations like one page per account, but it is a very popular o
 
 I was introduced to GitHub 4 years ago. I have used it all the time through college, but I wasn't aware of all the features that Github has, one of them being GitHub pages. I looked through their documentation to understand how it works. As I was reading the instructions for the deliverable using Github pages, I saw the force HTTPS. I was aware of the difference between HTTP protocol and HTTPS, so I didn't think too much about it, until I opened their documentation. I learned that Github uses a third-party service called Let's Encrypt for its TLS certificates to automatically enforce HTTPs, without any human interference. 
 Github performs a DNS validation to prove the ownership of the domain, and then uses ACME protocol to request and install the certificate without human interference.
+
 As I set up my AWS services I saw that you actually lease this certificate for 1 year, and it has to be renewed. Github pages with Let's Encrypt has certificates that last 90 days, but Github renews them automatically.
 This is really important because HTTPS is the most secure mainstream protocol to handle information, despite this service used for static pages, it is still important to use it, for example with a simple google search I found that `Bootstrap` uses GitHub pages for their website: `https://getbootstrap.com/`
+
 I also found an old `yelp` Github page's site where they shared their open source projects `https://yelp.github.io/`, and a simple personal website from a developer: `https://thundergolfer.com/`.
 I was surprised to find out that such big companies use Github pages, showing that this service is used extensively, and despite their use, enforcing HTTPS is critical, it protects the data transmitted, specially protecting tokens, and other sensitive information and helps avoid other using this information inappropriately.
-For me, the most important thing is that all of this is free. AWS certificate manager and Let's Encrypt both provide the TLS certificates. Let's encrypt is simpler to use with their full automation and AWS is another service of their cloud infrastructure, that requires more configuration but ultimately allows for more customization. Funny enough `AWS` is a major sponsor of diamond-level to Let's encrypt, which means that they support with `500K dollars each year` to `Let's Encrypt`. Github is a supporter as well but of smaller tier. Regardless, Github validates the domain, and then request the certificate from Let's Encrypt to install it on the servers, allowing HTTPS to be forced without any other configuration. Let's Encrypt does not take money from Github, they are a non-profit, they do take money from their sponsorship programs to fund their services, there are multiple services but Let's Encrypt is free.
+For me, the most important thing is that all of this is free. AWS certificate manager and Let's Encrypt both provide the TLS certificates. Let's encrypt is simpler to use with their full automation and AWS is another service of their cloud infrastructure, that requires more configuration but ultimately allows for more customization. Funny enough `AWS` is a major sponsor of diamond-level to Let's encrypt, which means that they support with `500K dollars each year` to `Let's Encrypt`. Github is a supporter as well but of smaller tier. 
+Github validates the domain, and then request the certificate from Let's Encrypt to install it on the servers, allowing HTTPS to be forced without any other configuration. Let's Encrypt does not take payments from Github, they do donate via sponsorship like multiple other companies, they are a non-profit, there are multiple services offering similar solutions, but Let's Encrypt is free.
 
 ### Process
 
@@ -39,7 +42,7 @@ For me, the most important thing is that all of this is free. AWS certificate ma
 ```
 7. I then went to settings, in the Code and Automation tab click on `pages`, here you can see a bunch of options, at the very bottom saying `Enforce HTTPS` to force HTTPS, which will allow Github to connect to `Let's Encrypt` to enforce HTTPS.
 8. I then visited the newly created site at: (https://andreaguirreroman.github.io/) where I confirmed that the HTTPS protocol is active. Even if you try HTTP http://andreaguirreroman.github.io/, the site will be redirected to the HTTPS protocol site.
-![img]()
+![img](/blob/main/cr.png)
 9. While reading the instructions, I reached their **changing the title and description** section and I learned about the `Jekyll` them that they have. In the instructions I had the following steps to follow:
 
 *The _config.yml file already contains a line that specifies the theme for your site.*
