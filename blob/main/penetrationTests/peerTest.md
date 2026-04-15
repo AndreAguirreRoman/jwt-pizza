@@ -253,3 +253,153 @@ Each data access point is a potential data leak that should be guarder by multip
 No actions should be permitted the user is intended to make changes, which can be achieved by sanitizing inputs, outputs, and creating checks to avoid unintended actors to access sensitive information. Those who fail, will not be only placing their reputation in danger, but potentially damaging other people property. There is a big responsibility and tools like Burp help us check for these vulnerabilities.
 
 ---
+
+## Adding my self-attacks report
+
+---
+# Self-attack
+
+### Attack 1 
+
+| Item | Result |
+| :--- | :--- |
+| Date | April 10, 2026 |
+| Target | Price changes when ordering a pizza, and even the names |
+| Classification | Injection |
+| Severity | 5 |
+| Description | The price was changed and the pizza was registered as successful, possibly having the franchisees lose money. |
+| Images | <img src="image-url.png" width="250"><br>description. |
+| Corrections | In the orderRouter, I made sure to request the pizza menu from the database, and compare it with the body, if it was not the same, the order will not be sent. If there is an ID, the order will replace the corrupted name and price to the correct one. Had to create a whole new function |
+
+```
+
+  async addDinerOrder(user, order) {
+    const connection = await this.getConnection();
+    try {
+      if (!order.franchiseId || !order.storeId || !Array.isArray(order.items) || order.items.length === 0) {
+        throw new StatusCodeError('invalid order', 400);
+      }
+
+      const orderResult = await this.query(
+        connection,
+        `INSERT INTO dinerOrder (dinerId, franchiseId, storeId, date) VALUES (?, ?, ?, now())`,
+        [user.id, order.franchiseId, order.storeId]
+      );
+
+      const orderId = orderResult.insertId;
+      const trustedItems = [];
+
+      for (const item of order.items) {
+        if (!item.menuId) {
+          throw new StatusCodeError('invalid menu item', 400);
+        }
+
+        const menuRows = await this.query(
+          connection,
+          `SELECT id, description, price FROM menu WHERE id=?`,
+          [item.menuId]
+        );
+
+        if (menuRows.length === 0) {
+          throw new StatusCodeError('invalid menu item', 400);
+        }
+
+        const menuItem = menuRows[0];
+
+        await this.query(
+          connection,
+          `INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?)`,
+          [orderId, menuItem.id, menuItem.description, menuItem.price]
+        );
+
+        trustedItems.push({
+          menuId: menuItem.id,
+          description: menuItem.description,
+          price: menuItem.price,
+        });
+      }
+
+      return {
+        id: orderId,
+        franchiseId: order.franchiseId,
+        storeId: order.storeId,
+        items: trustedItems,
+      };
+    } finally {
+      connection.end();
+    }
+  }
+```
+
+### Attack 2
+
+| Item | Result |
+| :--- | :--- |
+| Date | April 10, 2026 |
+| Target | Insert a wrong description in the pizza order to get location of the files |
+| Classification | Injection |
+| Severity | 3 |
+| Description | There was a direct description of where the files were located and now the intruder has the files information, possibly finding more vulnerabilities |
+| Images | <img src="./WhatsApp Image 2026-04-10 at 17.32.45.jpeg" width="250"><br> |
+| Corrections | Fixed the error handling to catch this exception to fix the faulty error message.|
+
+```
+const start = Date.now();
+
+    const orderReq = req.body;
+    if (!orderReq.items || !Array.isArray(orderReq.items) || orderReq.items.length === 0) {
+      throw new StatusCodeError('invalid order', 400);
+    }
+```
+### Attack 3
+
+| Item | Result |
+| :--- | :--- |
+| Date | April 10, 2026 |
+| Target | website |
+| Classification | Get user data without authorization token |
+| Severity | 5 |
+| Description | Get users endpoint showed all the users in the database without any sort of authentication |
+| Images | <img src="./WhatsApp Image 2026-04-10 at 17.32.45.jpeg" width="250"><br>description. |
+| Corrections | Fixed the getUsers in userRouter to ask for validation so only admins get access to the users. |
+
+
+```
+   if (!req.user.isRole(Role.Admin)){
+      throw new StatusCodeError("Hold your horses! You have no permission")
+    }
+```
+
+
+### Attack 4
+
+| Item | Result |
+| :--- | :--- |
+| Date | April 10, 2026 |
+| Target | website |
+| Classification | Update other franchises without the authorization, deleting other franchises through a modified request of FranchiseID |
+| Severity | 5 |
+| Description | Other franchisees are able to delete other franchises, meaning that they could exploit the account of one franchisee to delete all the franchises |
+| Images | <img src="image-url.png" width="250"><br>description. |
+| Corrections | Change made below: |
+```
+const franchiseId = Number(req.params.franchiseId); #added
+```
+
+### Attack 5
+
+| Item | Result |
+| :--- | :--- |
+| Date | April 10, 2026 |
+| Target | website |
+| Classification | Injection |
+| Severity | 3 |
+| Description | The website took forever to handle the request, crashed, and didn't register the order as valid. When you go to the order history you will see that the order was purchased, possibly making customers get ghost charges. |
+| Images | <img src="image-url.png" width="250"><br>description. |
+| Corrections | Added a check in the pizza ordering to limit how many pizzas are purchased at once in OrderRouter |
+
+```
+    if (!orderReq.items || !Array.isArray(orderReq.items) || orderReq.items.length > 10) {
+      throw new StatusCodeError('We are sorry! Only 10 pizzas per order!', 400);
+    }
+```
